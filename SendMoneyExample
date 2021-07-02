@@ -1,0 +1,31 @@
+pragma solidity ^0.5.13;
+
+contract SendMoneyExample {
+    
+    uint public balancerecieved;
+    uint public balancewithdrawn;
+    uint public lockedUntil;
+    function recieveMoney() public payable {
+        balancerecieved += msg.value;
+        lockedUntil = block.timestamp + 1 minutes;
+        
+    }
+    
+    function getbalance () public view returns (uint) {
+        return address(this).balance;
+    }
+    
+    function withdrawmoney () public {
+            if(lockedUntil < block.timestamp){
+               address  payable to = msg.sender;
+               to.transfer(this.getbalance());     
+            }
+        
+        
+    }
+    
+    function withdrawmoneyto (address payable _to) payable public {
+        _to.transfer(this.getbalance());
+        balancewithdrawn = balancerecieved - getbalance();
+    }
+}
