@@ -1,0 +1,28 @@
+pragma solidity 0.8.1;
+
+import "./Allowance.sol";
+
+contract MyWallet is Allowance {
+    //uint public balance = address(this).balance;
+    event MoneySent(address indexed _beneficiary, uint _amount);
+    event MoneyReceived(address indexed _from, uint _amount);
+    function withdrawMoney(address payable _to, uint _amount) public ownerOrAllowed (_amount) {
+        require(address(this).balance >= _amount, "not enough funds");
+        if(!isOwner()) {
+            reduceAllowance(msg.sender, _amount);
+        }
+        _to.transfer(_amount);
+        emit MoneySent(_to, _amount);
+    }
+    
+    function renounceOwnership() public override onlyOwner {
+        revert("can't renounceOwnership here"); 
+    }
+    
+    function getbalance () public view returns (uint) {
+        return address(this).balance;
+    }
+    receive () external payable {
+        emit MoneyReceived(msg.sender, msg.value);
+    }
+}
